@@ -6,9 +6,10 @@ An end-to-end machine-learning project: train heart disease classifiers locally,
 
 ## Quick start
 
-Click **Use this template → Create a new repository**, clone your copy, then:
-
 ```bash
+git clone https://github.com/Abhi1727/heart-disease-azure-starter.git
+cd heart-disease-azure-starter
+
 python3.12 -m venv .venv
 source .venv/bin/activate            # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt

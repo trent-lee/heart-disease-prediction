@@ -68,39 +68,61 @@ brew install git python@3.12 gh
 
 ## 3. Get the code
 
-You need **your own copy** of the repository so that you can push changes and connect it to your own Azure account.
+Starter repository: **https://github.com/Abhi1727/heart-disease-azure-starter**
 
-**Option A — Use the template (recommended)**
-
-1. Open the starter repository link you were given and click **Use this template → Create a new repository**.
-2. Choose your account as the owner, give it a name (e.g. `heart-disease-azure-starter`), pick **Public** or **Private**, and click **Create repository**.
-3. Clone **your new repository** (replace the placeholders):
+**1. Download the code.** Open a terminal in the folder where you keep your projects (for example `cd ~/Projects`, or `cd Documents` on Windows) and paste:
 
 ```bash
-git clone https://github.com/<your-github-username>/<your-repo-name>.git
-cd <your-repo-name>
-```
-
-**Option B — Fork**
-
-Click **Fork → Create fork** on the starter repository, then clone your fork as above. Forks start with GitHub Actions disabled; step 13 shows how to enable them.
-
-**Option C — Clone, then push to a new repository of your own**
-
-```bash
-git clone https://github.com/<template-owner>/heart-disease-azure-starter.git
+git clone https://github.com/Abhi1727/heart-disease-azure-starter.git
 cd heart-disease-azure-starter
-# create an EMPTY repository on github.com first, then:
-git remote set-url origin https://github.com/<your-github-username>/<your-repo-name>.git
-git push -u origin main
 ```
 
-From now on, **all commands run inside the repository folder** you just entered.
+That is all you need to run and train the model locally (steps 5–8). The same commands work on macOS, Linux and Windows PowerShell.
+
+**2. Make it your own repository.** To push your changes and deploy to *your* Azure account you need a copy on *your* GitHub account. Choose one option:
+
+**Option A — From the terminal (recommended, needs the GitHub CLI `gh`)**
+
+Run these inside the `heart-disease-azure-starter` folder. Nothing needs editing: `gh` uses the account you log in with.
+
+```bash
+gh auth login --scopes workflow
+gh auth setup-git
+git remote rename origin upstream
+gh repo create heart-disease-azure-starter --public --source . --remote origin --push
+```
+
+- `gh auth login` asks a few questions: choose **GitHub.com → HTTPS → Login with a web browser**, and enter the code shown.
+- `git remote rename origin upstream` keeps a link to the original starter, so you can fetch future updates with `git pull upstream main`.
+- `gh repo create` creates `https://github.com/<your-github-username>/heart-disease-azure-starter` and pushes the code to it. Use `--private` instead of `--public` if you prefer.
+
+**Option B — From the website ("Use this template")**
+
+1. Open https://github.com/Abhi1727/heart-disease-azure-starter and click **Use this template → Create a new repository**.
+2. Keep the name **`heart-disease-azure-starter`**, choose **Public** or **Private**, and click **Create repository**.
+3. Replace the folder from step 1 with a clone of **your** copy. Change `<your-github-username>` to your GitHub username before pressing Enter:
+
+```bash
+cd ..
+rm -rf heart-disease-azure-starter      # Windows PowerShell: Remove-Item -Recurse -Force heart-disease-azure-starter
+git clone https://github.com/<your-github-username>/heart-disease-azure-starter.git
+cd heart-disease-azure-starter
+```
+
+**Check it worked:**
+
+```bash
+git remote -v
+```
+
+`origin` must point to **your** GitHub account. If it still shows `Abhi1727`, you are pushing to the original starter, which will be refused.
+
+From now on, **all commands run inside the `heart-disease-azure-starter` folder**.
 
 ## 4. Project structure
 
 ```
-<your-repo-name>/
+heart-disease-azure-starter/
 ├── .github/workflows/
 │   └── deploy.yml             ← CI/CD: test the model, then deploy to Azure
 ├── app.py                     ← Streamlit entry point (navigation, theme)
@@ -198,7 +220,7 @@ MLflow records **every training run**: the hyper-parameters used, the scores, th
 Open a **second terminal**, activate the environment, and start the MLflow UI:
 
 ```bash
-cd <your-repo-name>
+cd heart-disease-azure-starter
 source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
 mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001
 ```
@@ -380,7 +402,7 @@ It needs two pieces of information from you, stored safely in GitHub:
   - Name: `AZURE_WEBAPP_NAME`
   - Value: your App Service name (e.g. `heart-predictor-<yourname>`)
 
-**3. Forks only: enable GitHub Actions** — open the **Actions** tab. Forks have workflows disabled by default; click **"I understand my workflows, go ahead and enable them"**. Repositories created from the template already have them enabled.
+**3. Check GitHub Actions is enabled** — open the **Actions** tab of your repository. If it shows a button such as **"I understand my workflows, go ahead and enable them"**, click it.
 
 **4. Run the deployment** — **Actions → Deploy to Azure → Run workflow → Run workflow**. Wait for the green tick (about 3 minutes).
 
@@ -397,7 +419,7 @@ From now on, **every `git push` to `main` redeploys automatically**.
 Once everything is connected, improving the live model is a short loop:
 
 ```bash
-cd <your-repo-name>
+cd heart-disease-azure-starter
 source .venv/bin/activate
 
 python main.py --run-name "describe-your-change"   # 1. retrain (tracked in MLflow)
