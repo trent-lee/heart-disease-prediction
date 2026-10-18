@@ -1,0 +1,95 @@
+# CI/CD for the Heart Disease Prediction Streamlit dashboard.
+#
+# On every push to main (or when run manually) it:
+#   1. installs the dashboard dependencies and checks the saved model loads and predicts
+#   2. deploys the committed code to your Azure App Service, once deployment is configured
+#
+# Configure deployment in GitHub -> Settings -> Secrets and variables -> Actions:
+#   Variable  AZURE_WEBAPP_NAME             your App Service name
+#   Secret    AZURE_WEBAPP_PUBLISH_PROFILE  full contents of the publish profile downloaded from Azure
+# Advanced alternative to the publish profile (OpenID Connect):
+#   Secrets   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
+# Step-by-step instructions: docs/GUIDE.md
+
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies and smoke test the saved model
+        run: |
+          pip install -r requirements.txt
+          python - <<'EOF'
+          import joblib, pandas as pd
+          from config import BEST_MODEL_PATH, DATA_PATH, FEATURE_COLS
+          model = joblib.load(BEST_MODEL_PATH)
+          sample = pd.read_csv(DATA_PATH)[FEATURE_COLS].head(5)
+          print(model.predict_proba(sample))
+          EOF
+
+      - name: Package the committed files
+        run: |
+          mkdir -p "$RUNNER_TEMP/app"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/app"
+          rm -rf "$RUNNER_TEMP/app/.github"
+
+      - name: Choose deployment method
+        id: auth
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        run: |
+          if [ -z "$AZURE_WEBAPP_NAME" ]; then
+            echo "method=none" >> "$GITHUB_OUTPUT"
+            echo "::notice::Deployment skipped: set the AZURE_WEBAPP_NAME repository variable (see docs/GUIDE.md, step 13)."
+          elif [ -n "$PUBLISH_PROFILE" ]; then
+            echo "method=publish-profile" >> "$GITHUB_OUTPUT"
+          elif [ -n "$CLIENT_ID" ]; then
+            echo "method=oidc" >> "$GITHUB_OUTPUT"
+          else
+            echo "method=none" >> "$GITHUB_OUTPUT"
+            echo "::warning::Deployment skipped: add the AZURE_WEBAPP_PUBLISH_PROFILE secret (see docs/GUIDE.md, step 13)."
+          fi
+
+      - name: Deploy to Azure Web App (publish profile)
+        if: steps.auth.outputs.method == 'publish-profile'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ runner.temp }}/app
+
+      - name: Login to Azure (OpenID Connect)
+        if: steps.auth.outputs.method == 'oidc'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App (OpenID Connect)
+        if: steps.auth.outputs.method == 'oidc'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ runner.temp }}/app

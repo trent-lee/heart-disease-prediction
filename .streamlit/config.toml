@@ -1,0 +1,27 @@
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "viewer"
+
+[theme]
+base = "light"
+primaryColor = "#D7263D"
+backgroundColor = "#F6F7FB"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1E293B"
+borderColor = "#E2E8F0"
+showWidgetBorder = true
+baseRadius = "0.6rem"
+headingFontWeights = [700, 650, 600]
+metricValueFontWeight = 700
+chartCategoricalColors = ["#2563EB", "#D7263D", "#0EA5A4", "#F59E0B", "#7C3AED"]
+
+[theme.sidebar]
+backgroundColor = "#0F172A"
+secondaryBackgroundColor = "#1E293B"
+textColor = "#E2E8F0"
+borderColor = "#334155"

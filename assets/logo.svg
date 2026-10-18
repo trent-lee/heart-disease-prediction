@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="48" viewBox="0 0 240 48">
+  <rect x="2" y="4" width="40" height="40" rx="10" fill="#D7263D"/>
+  <path d="M22 35s-11-6.6-11-14.2C11 16.9 13.9 14 17.4 14c2 0 3.6 1 4.6 2.5 1-1.5 2.6-2.5 4.6-2.5 3.5 0 6.4 2.9 6.4 6.8C33 28.4 22 35 22 35z" fill="#FFFFFF"/>
+  <polyline points="12,25 18,25 20,21 23,29 25,24 32,24" fill="none" stroke="#D7263D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="54" y="22" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#F8FAFC">Heart Disease</text>
+  <text x="54" y="40" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#94A3B8">Prediction System</text>
+</svg>

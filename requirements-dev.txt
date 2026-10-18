@@ -1,0 +1,7 @@
+# Extra dependencies needed only to retrain models locally (python main.py) and run MLflow.
+-r requirements.txt
+imbalanced-learn==0.14.2
+matplotlib==3.11.2
+seaborn==0.13.2
+mlflow==3.17.1
+python-docx==1.2.0
