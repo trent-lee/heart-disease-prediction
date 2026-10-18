@@ -12,6 +12,7 @@ from config import (
 )
 
 LOGO_PATH = BASE_DIR / "assets" / "logo.svg"
+ICON_PATH = BASE_DIR / "assets" / "icon.svg"
 
 OUTCOME_LABELS = {0: "No disease", 1: "Heart disease"}
 OUTCOME_SCALE = alt.Scale(domain=["No disease", "Heart disease"], range=["#2563EB", "#D7263D"])

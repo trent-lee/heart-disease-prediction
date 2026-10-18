@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide",
 )
 common.inject_css()
-st.logo(str(common.LOGO_PATH), size="large")
+st.logo(str(common.LOGO_PATH), size="large", icon_image=str(common.ICON_PATH))
 
 navigation = st.navigation({
     "Dashboard": [
